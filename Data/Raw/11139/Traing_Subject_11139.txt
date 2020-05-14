@@ -1,0 +1,11 @@
+,Accuracy,Confidence,Confidence_RT,Expected,KeyPressed,LearningTime,LeftWord,MarkerStart,RT,RightWord,TrialNumber,nBlock
+0,1.0,Nan,Nan,right,right,60.0,positive,1.0,2.6579986006690888,ingest,0.0,TrainingBlock
+1,0.0,7,1.753,left,right,60.0,spine,2.0,-2.3784082389611285,busybody,1.0,TrainingBlock
+2,1.0,7,1.117,right,right,60.0,melt,5.0,1.1442408528964734,disk,2.0,TrainingBlock
+3,1.0,5,1.137,right,right,60.0,leak,3.0,1.156905789161101,belong,3.0,TrainingBlock
+4,1.0,7,0.753,left,left,60.0,enzyme,6.0,0.9435789745184593,furious,4.0,TrainingBlock
+5,1.0,7,1.554,right,right,60.0,finger,1.0,1.0091184718039585,space,5.0,TrainingBlock
+6,1.0,7,1.086,left,left,60.0,rebellious,4.0,0.8230245262675453,thrilled,6.0,TrainingBlock
+7,1.0,7,1.103,left,left,60.0,startle,4.0,0.8414799359306926,perfume,7.0,TrainingBlock
+8,1.0,7,1.154,right,right,60.0,honesty,4.0,1.0488536306365859,soil,8.0,TrainingBlock
+9,1.0,7,0.787,left,left,60.0,tense,6.0,0.8003788028290728,topless,9.0,TrainingBlock
