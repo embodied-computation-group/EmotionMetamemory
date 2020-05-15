@@ -24,6 +24,9 @@ Figures and statistical models can be reproduced via Jupyters Notebooks and Rmar
 * `3 - Regressions.ipynb` will run the regression analysis for Figure 5.
 * `4 - PulseRateVariability.ipynb` will extract HRV, plot and run stat model for Figure 4.
 
+
+You can turn this repository into an interactive Binder session using this link: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/embodied-computation-group/EmotionMetamemory/master)
+
 ## Scripts
 
 ### Metacognition
