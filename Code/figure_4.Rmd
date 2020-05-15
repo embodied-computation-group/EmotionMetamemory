@@ -14,7 +14,7 @@ editor_options:
 ### Nanna Kildalh Mathiasen, Sebastian Scott Engen, Micah Allen
 ###
 ### 2020
-
+rm(list=ls())
 require(pacman)
 
 ```
@@ -30,7 +30,7 @@ pacman::p_load("plyr", "tidyr", "lattice", "ggplot2", "dplyr", "patchwork", "afe
 abs_dic <- dirname(rstudioapi::getSourceEditorContext()$path)
 setwd(abs_dic)
 
-data_dir <- file.path(dirname(abs_dic), "Data/Preprocessed/")
+data_dir <- file.path(dirname(abs_dic), "Data/Preprocessed/JASP")
 
 figure_dir <- file.path(dirname(abs_dic), "Figures/")
 
@@ -39,7 +39,7 @@ figure_dir <- file.path(dirname(abs_dic), "Figures/")
 ```{r}
 
 # read the HRV data
-data <- read.csv(file.path(data_dir, "Hrv.txt"))
+data <- read.csv(file.path(data_dir, "hrv.txt"))
 
 # set some labels
 data$Valence <- factor(data$Valence, levels = c("Low", "High"))
