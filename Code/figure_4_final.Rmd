@@ -1,0 +1,413 @@
+---
+title: "Figure 4"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+require(pacman)
+
+```
+
+Setup
+```{r}
+pacman::p_load("plyr", "tidyr", "lattice", "ggplot2", "dplyr", "patchwork", "afex", "emmeans", "ggpol", "psychReport", "knitr",
+              "cowplot","readr", "rmarkdown","Rmisc","devtools","gghalves","plotrix", "here")
+
+abs_dic <- dirname(rstudioapi::getSourceEditorContext()$path)
+setwd(abs_dic)
+
+
+# Make the figure folder if it doesn't exist yet
+dir.create('../figures/', showWarnings = FALSE)
+
+```
+
+```{r}
+
+# read the HRV data
+data <- read.csv("hrv.txt")
+
+# set some labels
+data$Valence <- factor(data$Valence, levels = c("Low", "High"))
+data$Valence <- revalue(data$Valence, c("Low"="Negative", "High"="Positive"))
+data$Arousal <- factor(data$Arousal, levels = c("Low", "High"))
+
+
+data$Arousal <- as.numeric(as.factor(data$Arousal))
+
+# first we need to average over the learning times and then pivot the data to a 
+# 'wider' format
+
+data <- data %>%
+  group_by(Valence, Arousal, Subject, Metric) %>%
+  filter(Reject == 0) %>%
+  summarise(Values = mean(Values)) %>%
+  pivot_wider(names_from = c(Metric), values_from = Values)
+
+
+#ggplot(data, aes(y= hf_peak, x = Arousal, fill = Valence))+
+#  geom_boxjitter(dodge = 0.5)
+
+
+data$xj <- jitter(as.numeric(as.factor(data$Arousal)), amount=0.05)
+  
+# now we can calculate a new matrix with mean and SE 
+summary_data <- data %>%
+  group_by(Valence, Arousal) %>%
+  select(-Subject) %>%
+  summarise_all(funs(mean, std.error))
+
+
+```
+
+
+
+Subpanel plots 
+
+
+```{r SD2}
+
+# set some aesthetics
+
+# width and height variables for saved plots
+w = 6
+h = 4
+
+# nudge variables for rainclouds
+
+nudge_dot_a = -.16
+nudge_dot_b = .16
+
+nudge_cloud_a = -.26
+nudge_cloud_b = .26
+
+pd <- position_dodge(width = 0.05)
+
+
+#color_1 = "#2A7C50"
+color_2 = "#FD6161"
+# colors
+
+color_1 = "#00436A"
+#color_2 = "#FF8C00"
+
+# Sizes
+line_summary_size = 1.5
+
+#Plot 
+
+P_SD2 <- ggplot(data = summary_data, aes(y = SD2_mean)) +
+
+  # geoms for raw data
+   geom_point(data = data %>% filter(Arousal==1), aes(x = xj, colour = Valence, y = SD2),
+                position = position_nudge(nudge_dot_a), alpha =.6, size=1)+
+   geom_point(data = data %>% filter(Arousal==2), aes(x = xj, colour = Valence, y = SD2),
+                position = position_nudge(nudge_dot_b), alpha =.6,size=1) +
+   geom_half_violin(
+     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = SD2), position = position_nudge(x = nudge_cloud_a), 
+     side = "l", alpha = .6, color = "black") +
+   geom_half_violin(
+     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = SD2), position = position_nudge(x = nudge_cloud_b), 
+     side = "r", alpha = .6, color = "black") +
+  
+  # geoms for summary data
+  geom_point(data = summary_data, aes( x = Arousal, color = Valence, y = SD2_mean), position = pd, alpha = .6, size = line_summary_size) +
+  
+  geom_errorbar(data = summary_data, aes(x = as.numeric(Arousal), colour = Valence, ymin = SD2_mean-SD2_std.error, ymax = SD2_mean+SD2_std.error),width = 0, size = line_summary_size, position = pd, alpha = 0.6) +
+  
+  geom_line(aes(x = Arousal, color=Valence,y = SD2_mean),  alpha = .6, size =  line_summary_size, position = pd) +
+  
+  scale_x_continuous(breaks=c(1,2), labels=c("Low", "High"), limits=c(0, 3)) +
+   
+  #Define additional settings
+  xlab("Arousal") + ylab("SD2") +
+  ggtitle('D') +
+  theme_cowplot()+
+  theme(title = element_text(size=14, face="bold"),axis.text.x = element_text(face = "bold", size = 14),axis.text.y = element_text(face = "bold", size = 14),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(),axis.line = element_line(colour = "black"))+
+  scale_fill_manual(values=c(color_1,color_2)) +
+  scale_color_manual(values=c(color_1,color_2)) 
+  
+ggsave(filename=here("figures", "Figure4_A_SD2_1.svg"), plot=P_SD2, width = w, height = h,dpi=600)
+ggsave(filename=here("figures", "Figure4_A_SD2_1.jpeg"), plot=P_SD2, width = w, height = h,dpi=600)
+
+P_SD2
+
+
+
+```
+
+```{r}
+#Plot 
+
+P_MeanBPM <- ggplot(data = summary_data, aes(y = MeanBPM_mean)) +
+
+  # geoms for raw data
+   geom_point(data = data %>% filter(Arousal==1), aes(x = xj, colour = Valence, y = MeanBPM),
+                position = position_nudge(nudge_dot_a), alpha =.6, size=1)+
+   geom_point(data = data %>% filter(Arousal==2), aes(x = xj, colour = Valence, y = MeanBPM),
+                position = position_nudge(nudge_dot_b), alpha =.6,size=1) +
+   geom_half_violin(
+     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = MeanBPM), position = position_nudge(x = nudge_cloud_a), 
+     side = "l", alpha = .6, color = "black") +
+   geom_half_violin(
+     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = MeanBPM), position = position_nudge(x = nudge_cloud_b), 
+     side = "r", alpha = .6, color = "black") +
+  
+  # geoms for summary data
+  geom_point(data = summary_data, aes( x = Arousal, color = Valence, y = MeanBPM_mean), position = pd, alpha = .6, size = line_summary_size) +
+  
+  geom_errorbar(data = summary_data, aes(x = as.numeric(Arousal), colour = Valence, ymin = MeanBPM_mean-MeanBPM_std.error, ymax = MeanBPM_mean+MeanBPM_std.error),width = 0, size = line_summary_size, position = pd, alpha = 0.6) +
+  
+  geom_line(aes(x = Arousal, color=Valence,y = MeanBPM_mean),  alpha = .6, size =  line_summary_size, position = pd) +
+  
+  scale_x_continuous(breaks=c(1,2), labels=c("Low", "High"), limits=c(0, 3)) +
+   
+  #Define additional settings
+  xlab("Arousal") + ylab("MeanBPM") +
+  ggtitle('A') +
+  theme_cowplot()+
+  theme(title = element_text(size=14, face="bold"),axis.text.x = element_text(face = "bold", size = 14),axis.text.y = element_text(face = "bold", size = 14),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(),axis.line = element_line(colour = "black"))+
+  scale_fill_manual(values=c(color_1,color_2)) +
+  scale_color_manual(values=c(color_1,color_2)) 
+  
+ggsave(filename=here("figures", "Figure4_A_MeanBPM_1.svg"), plot=P_MeanBPM, width = w, height = h,dpi=600)
+ggsave(filename=here("figures", "Figure4_A_MeanBPM_1.jpeg"), plot=P_MeanBPM, width = w, height = h,dpi=600)
+
+P_MeanBPM
+
+```
+
+```{r}
+
+#Plot 
+
+P_pnn50 <- ggplot(data = summary_data, aes(y = pnn50_mean)) +
+
+  # geoms for raw data
+   geom_point(data = data %>% filter(Arousal==1), aes(x = xj, colour = Valence, y = pnn50),
+                position = position_nudge(nudge_dot_a), alpha =.6, size=1)+
+   geom_point(data = data %>% filter(Arousal==2), aes(x = xj, colour = Valence, y = pnn50),
+                position = position_nudge(nudge_dot_b), alpha =.6,size=1) +
+   geom_half_violin(
+     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = pnn50), position = position_nudge(x = nudge_cloud_a), 
+     side = "l", alpha = .6, color = "black") +
+   geom_half_violin(
+     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = pnn50), position = position_nudge(x = nudge_cloud_b), 
+     side = "r", alpha = .6, color = "black") +
+  
+  # geoms for summary data
+  geom_point(data = summary_data, aes( x = Arousal, color = Valence, y = pnn50_mean), position = pd, alpha = .6, size = line_summary_size) +
+  
+  geom_errorbar(data = summary_data, aes(x = as.numeric(Arousal), colour = Valence, ymin = pnn50_mean-pnn50_std.error, ymax = pnn50_mean+pnn50_std.error),width = 0, size = line_summary_size, position = pd, alpha = 0.6) +
+  
+  geom_line(aes(x = Arousal, color=Valence,y = pnn50_mean),  alpha = .6, size =  line_summary_size, position = pd) +
+  
+  scale_x_continuous(breaks=c(1,2), labels=c("Low", "High"), limits=c(0, 3)) +
+   
+  #Define additional settings
+  xlab("Arousal") + ylab("pnn50") +
+  ggtitle('B') +
+  theme_cowplot()+
+  theme(title = element_text(size=14, face="bold"),axis.text.x = element_text(face = "bold", size = 14),axis.text.y = element_text(face = "bold", size = 14),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(),axis.line = element_line(colour = "black"))+
+  scale_fill_manual(values=c(color_1,color_2)) +
+  scale_color_manual(values=c(color_1,color_2)) 
+  
+ggsave(filename=here("figures", "Figure4_A_pnn50_1.svg"), plot=P_pnn50, width = w, height = h,dpi=600)
+ggsave(filename=here("figures", "Figure4_A_pnn50_1.jpeg"), plot=P_pnn50, width = w, height = h,dpi=600)
+
+P_pnn50
+
+
+```
+
+
+```{r}
+#Plot 
+
+P_hf_peak <- ggplot(data = summary_data, aes(y = hf_peak_mean)) +
+
+  # geoms for raw data
+   geom_point(data = data %>% filter(Arousal==1), aes(x = xj, colour = Valence, y = hf_peak),
+                position = position_nudge(nudge_dot_a), alpha =.6, size=1)+
+   geom_point(data = data %>% filter(Arousal==2), aes(x = xj, colour = Valence, y = hf_peak),
+                position = position_nudge(nudge_dot_b), alpha =.6,size=1) +
+   geom_half_violin(
+     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = hf_peak), position = position_nudge(x = nudge_cloud_a), 
+     side = "l", alpha = .6, color = "black") +
+   geom_half_violin(
+     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = hf_peak), position = position_nudge(x = nudge_cloud_b), 
+     side = "r", alpha = .6, color = "black") +
+  
+  # geoms for summary data
+  geom_point(data = summary_data, aes( x = Arousal, color = Valence, y = hf_peak_mean), position = pd, alpha = .6, size = line_summary_size) +
+  
+  geom_errorbar(data = summary_data, aes(x = as.numeric(Arousal), colour = Valence, ymin = hf_peak_mean-hf_peak_std.error, ymax = hf_peak_mean+hf_peak_std.error),width = 0, size = line_summary_size, position = pd, alpha = 0.6) +
+  
+  geom_line(aes(x = Arousal, color=Valence,y = hf_peak_mean),  alpha = .6, size =  line_summary_size, position = pd) +
+  
+  scale_x_continuous(breaks=c(1,2), labels=c("Low", "High"), limits=c(0, 3)) +
+   
+  #Define additional settings
+  xlab("Arousal") + ylab("hf_peak") +
+  ggtitle('C') +
+  theme_cowplot()+
+  theme(title = element_text(size=14, face="bold"),axis.text.x = element_text(face = "bold", size = 14),axis.text.y = element_text(face = "bold", size = 14),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(),axis.line = element_line(colour = "black"))+
+  scale_fill_manual(values=c(color_1,color_2)) +
+  scale_color_manual(values=c(color_1,color_2)) 
+  
+ggsave(filename=here("figures", "Figure4_A_hf_peak_1.svg"), plot=P_hf_peak, width = w, height = h,dpi=600)
+ggsave(filename=here("figures", "Figure4_A_hf_peak_1.jpeg"), plot=P_hf_peak, width = w, height = h,dpi=600)
+
+P_hf_peak
+```
+
+
+
+Assemble plots into overall figure. 
+```{r}
+
+mp<- P_MeanBPM + P_pnn50 + P_hf_peak + P_SD2  + plot_layout(guides = 'collect', ncol = 2)#, heights = c(10,10), widths = c(10,10,10))
+
+mp
+ggsave(filename="figures/Figure3_ALL.svg", plot=mp, width = 10, height = 6,dpi=600)
+
+ggsave(filename="figures/Figure3_ALL.jpeg", plot=mp, width = 10, height = 6,dpi=600)
+
+ggsave(filename="figures/Figure3_lowres.jpeg", plot=mp, width = 12, height = 6,dpi=300)
+
+mp
+
+```
+
+Statistical analyses
+
+```{r}
+## stats
+
+# fit 2x2 repeated measures ANOVA
+aov_1 <- aov_ez("Subject", "MeanBPM", data, within = c("Valence", "Arousal"), anova_table = list(es = "pes"))
+
+summary(aov_1)
+
+capture.output(nice(aov_1),file=here("stat_reports", "MeanBPM_anova_summary.doc"))
+
+
+# fit estimated marginal means and perform post-hoc contrasts
+m1 <- emmeans(aov_1$aov, "Valence", by = "Arousal")
+m2 <- emmeans(aov_1$aov, "Arousal", by = "Valence")
+m3 <- emmeans(aov_1$aov, ~Valence*Arousal)
+
+summary(pairs(m1))
+
+capture.output(summary(pairs(m1)),file=here("stat_reports", "MeanBPM_ph_valence_summary.doc"))
+
+summary(pairs(m2))
+
+capture.output(summary(pairs(m2)),file=here("stat_reports", "MeanBPM_ph_arousal_summary.doc"))
+
+summary(pairs(m3))
+
+
+capture.output(summary(pairs(m3)),file=here("stat_reports", "MeanBPM_ph_full_summary.doc"))
+```
+
+```{r}
+## stats
+
+# fit 2x2 repeated measures ANOVA
+aov_1 <- aov_ez("Subject", "hf_peak", data, within = c("Valence", "Arousal"))
+
+summary(aov_1)
+capture.output(summary(aov_1),file=here("stat_reports", "hf_peak_anova_summary.doc"))
+
+
+# fit estimated marginal means and perform post-hoc contrasts
+m1 <- emmeans(aov_1$aov, "Valence", by = "Arousal")
+m2 <- emmeans(aov_1$aov, "Arousal", by = "Valence")
+m3 <- emmeans(aov_1$aov, ~Valence*Arousal)
+
+summary(pairs(m1))
+
+capture.output(summary(pairs(m1)),file=here("stat_reports", "hf_peak_ph_valence_summary.doc"))
+
+summary(pairs(m2))
+
+capture.output(summary(pairs(m2)),file=here("stat_reports", "hf_peak_ph_arousal_summary.doc"))
+
+summary(pairs(m3))
+
+
+capture.output(summary(pairs(m3)),file=here("stat_reports", "hf_peak_ph_full_summary.doc"))
+```
+
+```{r}
+## stats
+
+# fit 2x2 repeated measures ANOVA
+aov_1 <- aov_ez("Subject", "pnn50", data, within = c("Valence", "Arousal"))
+
+summary(aov_1)
+capture.output(summary(aov_1),file=here("stat_reports", "pnn50_anova_summary.doc"))
+
+
+# fit estimated marginal means and perform post-hoc contrasts
+m1 <- emmeans(aov_1$aov, "Valence", by = "Arousal")
+m2 <- emmeans(aov_1$aov, "Arousal", by = "Valence")
+m3 <- emmeans(aov_1$aov, ~Valence*Arousal)
+
+summary(pairs(m1))
+
+capture.output(summary(pairs(m1)),file=here("stat_reports", "pnn50_ph_valence_summary.doc"))
+
+summary(pairs(m2))
+
+capture.output(summary(pairs(m2)),file=here("stat_reports", "pnn50_ph_arousal_summary.doc"))
+
+summary(pairs(m3))
+
+
+capture.output(summary(pairs(m3)),file=here("stat_reports", "pnn50_ph_full_summary.doc"))
+```
+
+
+```{r}
+## stats
+
+# fit 2x2 repeated measures ANOVA
+aov_1 <- aov_ez("Subject", "SD2", data, within = c("Valence", "Arousal"), anova_table = list(es = "pes"))
+summary(aov_1)
+capture.output(nice(aov_1),file=here("stat_reports", "MeanBPM_anova_summary.doc")))
+
+summary(aov_1)
+capture.output(summary(aov_1),file=here("stat_reports", "SD2_anova_summary.doc"))
+
+
+# fit estimated marginal means and perform post-hoc contrasts
+m1 <- emmeans(aov_1$aov, "Valence", by = "Arousal")
+m2 <- emmeans(aov_1$aov, "Arousal", by = "Valence")
+m3 <- emmeans(aov_1$aov, ~Valence*Arousal)
+
+summary(pairs(m1))
+
+capture.output(summary(pairs(m1)),file=here("stat_reports", "SD2_ph_valence_summary.doc"))
+
+summary(pairs(m2))
+
+capture.output(summary(pairs(m2)),file=here("stat_reports", "SD2_ph_arousal_summary.doc"))
+
+summary(pairs(m3))
+
+
+capture.output(summary(pairs(m3)),file=here("stat_reports", "SD2_ph_full_summary.doc"))
+```
+
