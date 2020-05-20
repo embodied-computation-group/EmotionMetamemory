@@ -1,15 +1,13 @@
 ---
-title: "Figure 4"
-output: html_notebook
-editor_options: 
-  chunk_output_type: inline
----
 
+title: "Figure 4" output: html_notebook editor_options:
 
+chunk_output_type: inline
+-------------------------
 
-```{r}
-### R Notebook to produce Figure 4 from the paper: 
-### DOI: 
+```r
+### R Notebook to produce Figure 4 from the paper:
+### DOI:
 ### Illustration of statistical signfigiant effects of stimulus valence x arousal on various HRV metrics
 ### Nanna Kildalh Mathiasen, Sebastian Scott Engen, Micah Allen
 ###
@@ -19,16 +17,17 @@ require(pacman)
 
 ```
 
-Setup
-```{r}
-# WARNING: PACMAN WILL AUTOLOAD NEEDED PACKAGES - USE AT YOUR OWN RISK! 
-# Otherwise, just manually install these packages. 
+Setup\`\``{r}
 
-pacman::p_load("plyr", "tidyr", "lattice", "ggplot2", "dplyr", "patchwork", "afex", "emmeans", "ggpol", "psychReport", "knitr",
-              "cowplot","readr", "rmarkdown","Rmisc","devtools","gghalves","plotrix", "here")
+WARNING: PACMAN WILL AUTOLOAD NEEDED PACKAGES - USE AT YOUR OWN RISK!
+=====================================================================
 
-abs_dic <- dirname(rstudioapi::getSourceEditorContext()$path)
-setwd(abs_dic)
+Otherwise, just manually install these packages.
+================================================
+
+pacman::p_load("plyr", "tidyr", "lattice", "ggplot2", "dplyr", "patchwork", "afex", "emmeans", "ggpol", "psychReport", "knitr", "cowplot","readr", "rmarkdown","Rmisc","devtools","gghalves","plotrix", "here")
+
+abs_dic <- dirname(rstudioapi::getSourceEditorContext()$path) setwd(abs_dic)
 
 data_dir <- file.path(dirname(abs_dic), "Data/Preprocessed/JASP")
 
@@ -49,7 +48,7 @@ data$Arousal <- factor(data$Arousal, levels = c("Low", "High"))
 
 data$Arousal <- as.numeric(as.factor(data$Arousal))
 
-# first we need to average over the learning times and then pivot the data to a 
+# first we need to average over the learning times and then pivot the data to a
 # 'wider' format
 
 data <- data %>%
@@ -64,8 +63,8 @@ data <- data %>%
 
 
 data$xj <- jitter(as.numeric(as.factor(data$Arousal)), amount=0.05)
-  
-# now we can calculate a new matrix with mean and SE 
+
+# now we can calculate a new matrix with mean and SE
 summary_data <- data %>%
   group_by(Valence, Arousal) %>%
   select(-Subject) %>%
@@ -74,12 +73,9 @@ summary_data <- data %>%
 
 ```
 
+Subpanel plots
 
-
-Subpanel plots 
-
-
-```{r SD2}
+```r
 
 # set some aesthetics
 
@@ -108,7 +104,7 @@ color_1 = "#00436A"
 # Sizes
 line_summary_size = 1.5
 
-#Plot 
+#Plot
 
 P_SD2 <- ggplot(data = summary_data, aes(y = SD2_mean)) +
 
@@ -118,21 +114,21 @@ P_SD2 <- ggplot(data = summary_data, aes(y = SD2_mean)) +
    geom_point(data = data %>% filter(Arousal==2), aes(x = xj, colour = Valence, y = SD2),
                 position = position_nudge(nudge_dot_b), alpha =.6,size=1) +
    geom_half_violin(
-     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = SD2), position = position_nudge(x = nudge_cloud_a), 
+     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = SD2), position = position_nudge(x = nudge_cloud_a),
      side = "l", alpha = .6, color = "black") +
    geom_half_violin(
-     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = SD2), position = position_nudge(x = nudge_cloud_b), 
+     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = SD2), position = position_nudge(x = nudge_cloud_b),
      side = "r", alpha = .6, color = "black") +
-  
+
   # geoms for summary data
   geom_point(data = summary_data, aes( x = Arousal, color = Valence, y = SD2_mean), position = pd, alpha = .6, size = line_summary_size) +
-  
+
   geom_errorbar(data = summary_data, aes(x = as.numeric(Arousal), colour = Valence, ymin = SD2_mean-SD2_std.error, ymax = SD2_mean+SD2_std.error),width = 0, size = line_summary_size, position = pd, alpha = 0.6) +
-  
+
   geom_line(aes(x = Arousal, color=Valence,y = SD2_mean),  alpha = .6, size =  line_summary_size, position = pd) +
-  
+
   scale_x_continuous(breaks=c(1,2), labels=c("Low", "High"), limits=c(0, 3)) +
-   
+
   #Define additional settings
   xlab("Arousal") + ylab("SD2") +
   ggtitle('D') +
@@ -141,7 +137,7 @@ P_SD2 <- ggplot(data = summary_data, aes(y = SD2_mean)) +
         panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(),axis.line = element_line(colour = "black"))+
   scale_fill_manual(values=c(color_1,color_2)) +
-  scale_color_manual(values=c(color_1,color_2)) 
+  scale_color_manual(values=c(color_1,color_2))
 # uncomment if you want to save subplots seperately
 
 #ggsave(file.path(figure_dir, "Figure4_D_SD2_1.svg"), plot=P_SD2, width = w, height = h,dpi=600)
@@ -153,8 +149,8 @@ P_SD2
 
 ```
 
-```{r}
-#Plot 
+```r
+#Plot
 
 P_MeanBPM <- ggplot(data = summary_data, aes(y = MeanBPM_mean)) +
 
@@ -164,21 +160,21 @@ P_MeanBPM <- ggplot(data = summary_data, aes(y = MeanBPM_mean)) +
    geom_point(data = data %>% filter(Arousal==2), aes(x = xj, colour = Valence, y = MeanBPM),
                 position = position_nudge(nudge_dot_b), alpha =.6,size=1) +
    geom_half_violin(
-     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = MeanBPM), position = position_nudge(x = nudge_cloud_a), 
+     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = MeanBPM), position = position_nudge(x = nudge_cloud_a),
      side = "l", alpha = .6, color = "black") +
    geom_half_violin(
-     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = MeanBPM), position = position_nudge(x = nudge_cloud_b), 
+     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = MeanBPM), position = position_nudge(x = nudge_cloud_b),
      side = "r", alpha = .6, color = "black") +
-  
+
   # geoms for summary data
   geom_point(data = summary_data, aes( x = Arousal, color = Valence, y = MeanBPM_mean), position = pd, alpha = .6, size = line_summary_size) +
-  
+
   geom_errorbar(data = summary_data, aes(x = as.numeric(Arousal), colour = Valence, ymin = MeanBPM_mean-MeanBPM_std.error, ymax = MeanBPM_mean+MeanBPM_std.error),width = 0, size = line_summary_size, position = pd, alpha = 0.6) +
-  
+
   geom_line(aes(x = Arousal, color=Valence,y = MeanBPM_mean),  alpha = .6, size =  line_summary_size, position = pd) +
-  
+
   scale_x_continuous(breaks=c(1,2), labels=c("Low", "High"), limits=c(0, 3)) +
-   
+
   #Define additional settings
   xlab("Arousal") + ylab("MeanBPM") +
   ggtitle('A') +
@@ -187,8 +183,8 @@ P_MeanBPM <- ggplot(data = summary_data, aes(y = MeanBPM_mean)) +
         panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(),axis.line = element_line(colour = "black"))+
   scale_fill_manual(values=c(color_1,color_2)) +
-  scale_color_manual(values=c(color_1,color_2)) 
-  
+  scale_color_manual(values=c(color_1,color_2))
+
 #ggsave(filename=here("figures", "Figure4_A_MeanBPM_1.svg"), plot=P_MeanBPM, width = w, height = h,dpi=600)
 #ggsave(filename=here("figures", "Figure4_A_MeanBPM_1.jpeg"), plot=P_MeanBPM, width = w, height = h,dpi=600)
 
@@ -196,9 +192,9 @@ P_MeanBPM
 
 ```
 
-```{r}
+```r
 
-#Plot 
+#Plot
 
 P_pnn50 <- ggplot(data = summary_data, aes(y = pnn50_mean)) +
 
@@ -208,21 +204,21 @@ P_pnn50 <- ggplot(data = summary_data, aes(y = pnn50_mean)) +
    geom_point(data = data %>% filter(Arousal==2), aes(x = xj, colour = Valence, y = pnn50),
                 position = position_nudge(nudge_dot_b), alpha =.6,size=1) +
    geom_half_violin(
-     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = pnn50), position = position_nudge(x = nudge_cloud_a), 
+     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = pnn50), position = position_nudge(x = nudge_cloud_a),
      side = "l", alpha = .6, color = "black") +
    geom_half_violin(
-     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = pnn50), position = position_nudge(x = nudge_cloud_b), 
+     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = pnn50), position = position_nudge(x = nudge_cloud_b),
      side = "r", alpha = .6, color = "black") +
-  
+
   # geoms for summary data
   geom_point(data = summary_data, aes( x = Arousal, color = Valence, y = pnn50_mean), position = pd, alpha = .6, size = line_summary_size) +
-  
+
   geom_errorbar(data = summary_data, aes(x = as.numeric(Arousal), colour = Valence, ymin = pnn50_mean-pnn50_std.error, ymax = pnn50_mean+pnn50_std.error),width = 0, size = line_summary_size, position = pd, alpha = 0.6) +
-  
+
   geom_line(aes(x = Arousal, color=Valence,y = pnn50_mean),  alpha = .6, size =  line_summary_size, position = pd) +
-  
+
   scale_x_continuous(breaks=c(1,2), labels=c("Low", "High"), limits=c(0, 3)) +
-   
+
   #Define additional settings
   xlab("Arousal") + ylab("pnn50") +
   ggtitle('B') +
@@ -231,8 +227,8 @@ P_pnn50 <- ggplot(data = summary_data, aes(y = pnn50_mean)) +
         panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(),axis.line = element_line(colour = "black"))+
   scale_fill_manual(values=c(color_1,color_2)) +
-  scale_color_manual(values=c(color_1,color_2)) 
-  
+  scale_color_manual(values=c(color_1,color_2))
+
 #ggsave(filename=here("figures", "Figure4_A_pnn50_1.svg"), plot=P_pnn50, width = w, height = h,dpi=600)
 #ggsave(filename=here("figures", "Figure4_A_pnn50_1.jpeg"), plot=P_pnn50, width = w, height = h,dpi=600)
 
@@ -241,9 +237,8 @@ P_pnn50
 
 ```
 
-
-```{r}
-#Plot 
+```r
+#Plot
 
 P_hf_peak <- ggplot(data = summary_data, aes(y = hf_peak_mean)) +
 
@@ -253,21 +248,21 @@ P_hf_peak <- ggplot(data = summary_data, aes(y = hf_peak_mean)) +
    geom_point(data = data %>% filter(Arousal==2), aes(x = xj, colour = Valence, y = hf_peak),
                 position = position_nudge(nudge_dot_b), alpha =.6,size=1) +
    geom_half_violin(
-     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = hf_peak), position = position_nudge(x = nudge_cloud_a), 
+     data = data %>% filter(Arousal=="1"),aes(x = Arousal,fill = Valence,y = hf_peak), position = position_nudge(x = nudge_cloud_a),
      side = "l", alpha = .6, color = "black") +
    geom_half_violin(
-     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = hf_peak), position = position_nudge(x = nudge_cloud_b), 
+     data = data %>% filter(Arousal=="2"),aes(x = Arousal,fill = Valence,y = hf_peak), position = position_nudge(x = nudge_cloud_b),
      side = "r", alpha = .6, color = "black") +
-  
+
   # geoms for summary data
   geom_point(data = summary_data, aes( x = Arousal, color = Valence, y = hf_peak_mean), position = pd, alpha = .6, size = line_summary_size) +
-  
+
   geom_errorbar(data = summary_data, aes(x = as.numeric(Arousal), colour = Valence, ymin = hf_peak_mean-hf_peak_std.error, ymax = hf_peak_mean+hf_peak_std.error),width = 0, size = line_summary_size, position = pd, alpha = 0.6) +
-  
+
   geom_line(aes(x = Arousal, color=Valence,y = hf_peak_mean),  alpha = .6, size =  line_summary_size, position = pd) +
-  
+
   scale_x_continuous(breaks=c(1,2), labels=c("Low", "High"), limits=c(0, 3)) +
-   
+
   #Define additional settings
   xlab("Arousal") + ylab("hf_peak") +
   ggtitle('C') +
@@ -276,28 +271,20 @@ P_hf_peak <- ggplot(data = summary_data, aes(y = hf_peak_mean)) +
         panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(),axis.line = element_line(colour = "black"))+
   scale_fill_manual(values=c(color_1,color_2)) +
-  scale_color_manual(values=c(color_1,color_2)) 
-  
+  scale_color_manual(values=c(color_1,color_2))
+
 #ggsave(filename=here("figures", "Figure4_A_hf_peak_1.svg"), plot=P_hf_peak, width = w, height = h,dpi=600)
 #ggsave(filename=here("figures", "Figure4_A_hf_peak_1.jpeg"), plot=P_hf_peak, width = w, height = h,dpi=600)
 
 P_hf_peak
 ```
 
+Assemble plots into overall figure.\`\``{r}
 
+mp<- P_MeanBPM + P_pnn50 + P_hf_peak + P_SD2 + plot_layout(guides = 'collect', ncol = 2)
 
-Assemble plots into overall figure. 
-```{r}
-
-mp<- P_MeanBPM + P_pnn50 + P_hf_peak + P_SD2  + plot_layout(guides = 'collect', ncol = 2)
-
-ggsave(file.path(figure_dir, "Figure3.svg"), plot=mp, width = 10, height = 6,dpi=600)
-ggsave(file.path(figure_dir, "Figure3.png"), plot=mp, width = 10, height = 6,dpi=600)
-ggsave(file.path(figure_dir, "Figure3.jpeg"), plot=mp, width = 10, height = 6,dpi=600)
+ggsave(file.path(figure_dir, "Figure3.svg"), plot=mp, width = 10, height = 6,dpi=600) ggsave(file.path(figure_dir, "Figure3.png"), plot=mp, width = 10, height = 6,dpi=600) ggsave(file.path(figure_dir, "Figure3.jpeg"), plot=mp, width = 10, height = 6,dpi=600)
 
 mp
 
-```
-
-
-
+\`\`\`
