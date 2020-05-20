@@ -20,24 +20,30 @@ require(pacman)
 
 Setup
 ```{r}
-# WARNING: PACMAN WILL AUTOLOAD NEEDED PACKAGES - USE AT YOUR OWN RISK! 
+# WARNING: PACMAN WILL AUTOINSTALL NEEDED PACKAGES - USE AT YOUR OWN RISK! 
 # Otherwise, just manually install these packages. 
 pacman::p_load("plyr", "tidyr", "lattice", "ggplot2", "dplyr", "patchwork", "afex", "emmeans", "ggpol", "psychReport", "knitr",
               "cowplot","readr", "rmarkdown","Rmisc","devtools","gghalves","plotrix", "here")
-abs_dic <- dirname(rstudioapi::getSourceEditorContext()$path)
-setwd(abs_dic)
-data_dir <- file.path(dirname(abs_dic), "Data/Preprocessed/JASP")
-figure_dir <- file.path(dirname(abs_dic), "Figures/")
+
 ```
 
 ```{r}
+
+# set an automatic directory
+abs_dic <- dirname(rstudioapi::getSourceEditorContext()$path)
+setwd(abs_dic)
+data_dir <- file.path(dirname(abs_dic), "Data/Preprocessed/")
+figure_dir <- file.path(dirname(abs_dic), "Figures/")
+
 # read the HRV data
 data <- read.csv(file.path(data_dir, "hrv.txt"))
+
 # set some labels
 data$Valence <- factor(data$Valence, levels = c("Low", "High"))
 data$Valence <- revalue(data$Valence, c("Low"="Negative", "High"="Positive"))
 data$Arousal <- factor(data$Arousal, levels = c("Low", "High"))
 data$Arousal <- as.numeric(as.factor(data$Arousal))
+
 # first we need to average over the learning times and then pivot the data to a 
 # 'wider' format
 data <- data %>%
@@ -54,14 +60,13 @@ summary_data <- data %>%
   group_by(Valence, Arousal) %>%
   select(-Subject) %>%
   summarise_all(funs(mean, std.error))
+
+head(summary_data)
 ```
 
+Set general plot aesthetics
 
-
-Subpanel plots 
-
-
-```{r SD2}
+```{r}
 # set some aesthetics
 # width and height variables for saved plots
 w = 6
@@ -72,13 +77,20 @@ nudge_dot_b = .16
 nudge_cloud_a = -.26
 nudge_cloud_b = .26
 pd <- position_dodge(width = 0.05)
-#color_1 = "#2A7C50"
-color_2 = "#FD6161"
+
 # colors
 color_1 = "#00436A"
-#color_2 = "#FF8C00"
+color_2 = "#FD6161"
+
 # Sizes
 line_summary_size = 1.5
+```
+
+
+Subpanel plots 
+
+
+```{r SD2}
 #Plot 
 P_SD2 <- ggplot(data = summary_data, aes(y = SD2_mean)) +
   # geoms for raw data
@@ -239,9 +251,9 @@ P_hf_peak
 
 Assemble plots into overall figure. 
 ```{r}
-mp<- P_MeanBPM + P_pnn50 + P_hf_peak + P_SD2  + plot_layout(guides = 'collect', ncol = 2)
-ggsave(file.path(figure_dir, "Figure3.svg"), plot=mp, width = 10, height = 6,dpi=600)
-ggsave(file.path(figure_dir, "Figure3.png"), plot=mp, width = 10, height = 6,dpi=600)
-ggsave(file.path(figure_dir, "Figure3.jpeg"), plot=mp, width = 10, height = 6,dpi=600)
-mp
+fig4<- P_MeanBPM + P_pnn50 + P_hf_peak + P_SD2  + plot_layout(guides = 'collect', ncol = 2)
+#ggsave(file.path(figure_dir, "Figure4.svg"), plot=fig4, width = 10, height = 6,dpi=600)
+#ggsave(file.path(figure_dir, "Figure4.png"), plot=fig4, width = 10, height = 6,dpi=600)
+#ggsave(file.path(figure_dir, "Figure4.jpeg"), plot=fig4, width = 10, height = 6,dpi=600)
+fig4
 ```
