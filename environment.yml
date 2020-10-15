@@ -10,3 +10,5 @@ dependencies:
     - seaborn
     - pandas
     - matplotlib
+    - mne
+    - scipy
