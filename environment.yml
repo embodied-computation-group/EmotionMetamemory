@@ -1,0 +1,12 @@
+name: emotionmetamemory
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - numpy
+  - pip
+  - pip:
+    - systole
+    - seaborn
+    - pandas
+    - matplotlib
