@@ -20,8 +20,6 @@
 #
 # nR_S1 and nR_S2 should be two vectors
 # model output is a large mcmc list and two vectors for d1 and c1
-#
-# AM 2018
 
 #####################################
 
